@@ -18,6 +18,13 @@ class LCD:
         self.D7 = D7
         self.ALL = [self.D0,self.D1,self.D2,self.D3,self.D4,self.D5,self.D6,self.D7]
 
+        #move to front of first row
+        self.FR = self.D7
+        #move to front of second row
+        self.SR = [self.D7,self.D6]
+        #move cursor right once
+        self.MR = [self.D4,self.D2]
+
         self.character = {
             "0":[self.D5,self.D4],
             "@":[self.D6],
@@ -156,16 +163,34 @@ class LCD:
         self.enter()
         GPIO.output(self.ALL,GPIO.LOW)
 
-    def printLCD(self,text):
-        if len(text) > 32 or len(text) <= 0:
-            print("use a message of length 0-32")
+    def printLCD(self,text,pos=(0,0),reset=True):
+        if len(text) > 32 or len(text) == 0:
+            print("use a message of length 1-32")
         else:
-            #reset screen
-            GPIO.output(self.D0,GPIO.HIGH)
-            self.enter()
-            GPIO.output(self.D0,GPIO.LOW)
+            if reset:
+                #reset screen
+                GPIO.output(self.D0,GPIO.HIGH)
+                self.enter()
+                GPIO.output(self.D0,GPIO.LOW)
+            else:
+                #reset cursor
+                GPIO.output(self.FR,GPIO.HIGH)
+                self.enter()
+                GPIO.output(self.FR,GPIO.LOW)
             time.sleep(0.01)
             linePos = 0
+            #if its moving to the second line
+            if pos[0] == 1:
+                GPIO.output(self.SR,GPIO.HIGH)
+                self.enter()
+                GPIO.output(self.SR,GPIO.LOW)
+                time.sleep(0.01)
+            GPIO.output(self.MR,GPIO.HIGH)
+            #if a custom starting place is set
+            for i in range(0,pos[1]):
+                self.enter()
+                time.sleep(0.01)
+            GPIO.output(self.MR,GPIO.LOW)
             GPIO.output(self.RS,GPIO.HIGH)
             for i in text:
                 linePos += 1
@@ -180,7 +205,7 @@ class LCD:
                 if linePos == 16 or i == '\n':
                     GPIO.output(self.RS,GPIO.LOW)
                     #set cursor to start of second line
-                    GPIO.output([self.D7,self.D6],GPIO.HIGH)
+                    GPIO.output(self.SR,GPIO.HIGH)
                     self.enter()
                     GPIO.output(self.RS,GPIO.HIGH)
                     GPIO.output(self.ALL,GPIO.LOW)
