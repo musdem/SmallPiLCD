@@ -185,12 +185,12 @@ class LCD:
                 self.enter()
                 GPIO.output(self.SR,GPIO.LOW)
                 time.sleep(0.01)
-            GPIO.output(self.MR,GPIO.HIGH)
             #if a custom starting place is set
             for i in range(0,pos[1]):
+                GPIO.output(self.MR,GPIO.HIGH)
                 self.enter()
                 time.sleep(0.01)
-            GPIO.output(self.MR,GPIO.LOW)
+                GPIO.output(self.MR,GPIO.LOW)
             GPIO.output(self.RS,GPIO.HIGH)
             for i in text:
                 linePos += 1
