@@ -140,6 +140,12 @@ class LCD:
         GPIO.output(self.ENTER,GPIO.HIGH)
         GPIO.output(self.ENTER,GPIO.LOW)
 
+    def send(self,registers):
+        GPIO.output(registers,GPIO.HIGH)
+        self.enter()
+        GPIO.output(registers,GPIO.LOW)
+        time.sleep(0.01)
+
     def initLCD(self,cursor=True):
         if cursor:
             GPIO.output(self.D3,GPIO.HIGH)
@@ -169,45 +175,28 @@ class LCD:
         else:
             if reset:
                 #reset screen
-                GPIO.output(self.D0,GPIO.HIGH)
-                self.enter()
-                GPIO.output(self.D0,GPIO.LOW)
+                self.send(self.D0)
             else:
                 #reset cursor
-                GPIO.output(self.FR,GPIO.HIGH)
-                self.enter()
-                GPIO.output(self.FR,GPIO.LOW)
-            time.sleep(0.01)
+                self.send(self.FR)
             linePos = 0
             #if its moving to the second line
             if pos[0] == 1:
-                GPIO.output(self.SR,GPIO.HIGH)
-                self.enter()
-                GPIO.output(self.SR,GPIO.LOW)
-                time.sleep(0.01)
+                self.send(self.SR)
             #if a custom starting place is set
             for i in range(0,pos[1]):
-                GPIO.output(self.MR,GPIO.HIGH)
-                self.enter()
-                time.sleep(0.01)
-                GPIO.output(self.MR,GPIO.LOW)
+                self.send(self.MR)
             GPIO.output(self.RS,GPIO.HIGH)
             for i in text:
                 linePos += 1
                 if i in self.character:
-                    GPIO.output(self.character[i],GPIO.HIGH)
-                    self.enter()
+                    self.send(self.character[i])
                 else:
                     if i != '\n':
                         print("Character \"{}\" isn't supported by the LCD screen.".format(i))
-                GPIO.output(self.ALL,GPIO.LOW)
-                time.sleep(0.01)
                 if linePos == 16 or i == '\n':
                     GPIO.output(self.RS,GPIO.LOW)
                     #set cursor to start of second line
-                    GPIO.output(self.SR,GPIO.HIGH)
-                    self.enter()
+                    self.send(self.RS)
                     GPIO.output(self.RS,GPIO.HIGH)
-                    GPIO.output(self.ALL,GPIO.LOW)
-                    time.sleep(0.01)
             GPIO.output(self.RS,GPIO.LOW)
