@@ -191,11 +191,12 @@ class LCD:
                 linePos += 1
                 if i in self.character:
                     self.send(self.character[i])
-                elif linePos == 16 or i == '\n':
+                else:
+                    if i !='\n':
+                        print("Character \"{}\" isn't supported by the LCD screen.".format(i))
+                if linePos == 16 or i == '\n':
                     GPIO.output(self.RS,GPIO.LOW)
                     #set cursor to start of second line
-                    self.send(self.RS)
+                    self.send(self.SR)
                     GPIO.output(self.RS,GPIO.HIGH)
-                else:
-                    print("Character \"{}\" isn't supported by the LCD screen.".format(i))
             GPIO.output(self.RS,GPIO.LOW)
